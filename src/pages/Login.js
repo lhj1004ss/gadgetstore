@@ -10,15 +10,14 @@ import { UserContext } from "../context/user";
 export default function Login() {
   const history = useHistory();
   //setup user context
-  const value = React.useContext(UserContext);
-  console.log(value);
+  const { userLogin, alert, showAlert } = React.useContext(UserContext);
   //state values
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [username, setUsername] = React.useState("default");
   const [isMember, setIsMember] = React.useState(true);
 
-  let isEmpty = !email || !password || !username;
+  let isEmpty = !email || !password || !username || alert.show;
   const toggleMember = () => {
     setIsMember((prevMember) => {
       let isMember = !prevMember;
@@ -27,6 +26,7 @@ export default function Login() {
     });
   };
   const handleSubmit = async (e) => {
+    showAlert({ msg: "please wait" }); // wait for server'response to block too many requests from user when login
     e.preventDefault();
     let response;
     if (isMember) {
@@ -35,10 +35,19 @@ export default function Login() {
       response = await registerUser({ email, password, username });
     }
     if (response) {
-      console.log("success");
-      console.log(response);
+      const {
+        jwt: token,
+        user: { username },
+      } = response.data;
+      const newUser = { token, username };
+      userLogin(newUser);
+      showAlert({
+        msg: `you are successfully logged in : ${username}`,
+      });
+      history.push("/products");
     } else {
       // show alert
+      showAlert({ msg: "Error. Please try again!", type: "danger" });
     }
   };
 
