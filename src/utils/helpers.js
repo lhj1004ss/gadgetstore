@@ -3,8 +3,8 @@ import url from "./URL";
 export function flattenProducts(data) {
   return data.map((item) => {
     // console.log(item);
-    // let image = item.image.url;
-    let image = `${url}${item.image.url}`;
+    let image = item.image.url;
+    // let image = `${url}${item.image.url}`;
     return { ...item, image };
   });
 }
